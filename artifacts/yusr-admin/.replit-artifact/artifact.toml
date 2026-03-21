@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/yusr-admin/"
+title = "يُسر — لوحة تحكم المنصة"
+version = "1.0.0"
+id = "artifacts/yusr-admin"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+localPort = 22779
+name = "web"
+paths = ["/yusr-admin/"]
+
+[services.development]
+run = "pnpm --filter @workspace/yusr-admin run dev"
+
+[services.env]
+PORT = "22779"
+BASE_PATH = "/yusr-admin/"
+
+[services.production]
+build = ["pnpm", "--filter", "@workspace/yusr-admin", "run", "build"]
+publicDir = "artifacts/yusr-admin/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"

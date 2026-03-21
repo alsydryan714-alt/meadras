@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>يُسر — لوحة تحكم المنصة</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --dark: #041F1C; --dark2: #062E2A; --dark3: #0A4A44;
+  --teal: #0D9488; --teal-light: #14B8A6; --teal-xlight: #CCFBF1;
+  --gold: #F5A623; --bg: #F0F8F7; --white: #FFFFFF;
+  --text: #1A2E2D; --muted: #6B8F8D; --border: rgba(13,148,136,0.15);
+  --success: #34D399; --warning: #FB923C; --danger: #F43F5E;
+  --card-shadow: 0 1px 3px rgba(6,46,42,0.08), 0 4px 16px rgba(6,46,42,0.04);
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Tajawal',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; display:flex; }
+#login-screen { position:fixed; inset:0; background:linear-gradient(150deg,var(--dark) 0%,var(--dark2) 50%,var(--dark3) 100%); display:flex; align-items:center; justify-content:center; z-index:1000; transition:opacity 0.4s; }
+#login-screen.hidden { opacity:0; pointer-events:none; }
+.login-card { background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); border-radius:24px; padding:48px; width:400px; backdrop-filter:blur(20px); }
+.login-logo { text-align:center; margin-bottom:32px; }
+.login-logo .brand { font-size:52px; font-weight:800; color:white; letter-spacing:-2px; }
+.login-logo .brand span { color:var(--teal-light); }
+.login-logo p { color:rgba(255,255,255,0.35); font-size:13px; margin-top:4px; letter-spacing:2px; }
+.login-field { margin-bottom:16px; }
+.login-field label { display:block; color:rgba(255,255,255,0.5); font-size:12px; font-weight:500; margin-bottom:8px; letter-spacing:1px; }
+.login-field input { width:100%; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); border-radius:12px; padding:12px 16px; color:white; font-family:'Tajawal',sans-serif; font-size:14px; outline:none; transition:border-color 0.2s; direction:ltr; }
+.login-field input:focus { border-color:var(--teal-light); }
+.login-field input::placeholder { color:rgba(255,255,255,0.25); }
+.login-btn { width:100%; background:linear-gradient(135deg,var(--teal),var(--teal-light)); border:none; border-radius:12px; padding:14px; color:white; font-family:'Tajawal',sans-serif; font-size:15px; font-weight:700; cursor:pointer; margin-top:8px; transition:transform 0.15s,opacity 0.15s; }
+.login-btn:hover { transform:translateY(-1px); opacity:0.92; }
+.login-error { color:var(--danger); font-size:12px; text-align:center; margin-top:12px; min-height:18px; }
+.sidebar { width:240px; min-height:100vh; background:var(--dark2); display:flex; flex-direction:column; position:fixed; right:0; top:0; bottom:0; z-index:100; }
+.sidebar-logo { padding:28px 24px 20px; border-bottom:1px solid rgba(255,255,255,0.07); }
+.sidebar-logo .brand { font-size:28px; font-weight:800; color:white; letter-spacing:-1px; }
+.sidebar-logo .brand span { color:var(--teal-light); }
+.sidebar-logo p { color:rgba(255,255,255,0.3); font-size:11px; margin-top:2px; letter-spacing:1px; }
+nav { padding:16px 12px; flex:1; }
+.nav-label { font-size:10px; font-weight:700; color:rgba(255,255,255,0.25); letter-spacing:2px; padding:0 12px; margin:16px 0 8px; }
+.nav-item { display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:10px; color:rgba(255,255,255,0.45); font-size:13px; font-weight:500; cursor:pointer; transition:all 0.15s; margin-bottom:2px; }
+.nav-item:hover { background:rgba(255,255,255,0.05); color:rgba(255,255,255,0.8); }
+.nav-item.active { background:var(--teal); color:white; }
+.nav-item svg { width:16px; height:16px; flex-shrink:0; }
+.sidebar-footer { padding:16px; border-top:1px solid rgba(255,255,255,0.07); }
+.admin-badge { display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:10px; background:rgba(255,255,255,0.05); }
+.admin-avatar { width:32px; height:32px; border-radius:50%; background:linear-gradient(135deg,var(--teal),var(--gold)); display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700; color:white; }
+.admin-info .name { font-size:12px; font-weight:700; color:white; }
+.admin-info .role { font-size:10px; color:rgba(255,255,255,0.35); }
+.logout-btn { background:none; border:none; cursor:pointer; color:rgba(255,255,255,0.3); padding:4px; transition:color 0.15s; }
+.logout-btn:hover { color:var(--danger); }
+.main { margin-right:240px; flex:1; min-height:100vh; }
+.topbar { background:white; border-bottom:1px solid var(--border); padding:16px 32px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:50; }
+.topbar-title { font-size:20px; font-weight:800; color:var(--dark2); }
+.topbar-sub { font-size:12px; color:var(--muted); margin-top:1px; }
+.topbar-actions { display:flex; gap:10px; align-items:center; }
+.btn { display:inline-flex; align-items:center; gap:6px; padding:8px 16px; border-radius:10px; font-family:'Tajawal',sans-serif; font-size:13px; font-weight:600; cursor:pointer; border:none; transition:all 0.15s; }
+.btn-primary { background:var(--teal); color:white; }
+.btn-primary:hover { background:var(--dark3); }
+.btn-ghost { background:transparent; color:var(--muted); border:1px solid var(--border); }
+.btn-ghost:hover { background:var(--bg); }
+.btn-danger { background:#FEE2E2; color:#991B1B; }
+.btn-danger:hover { background:#FECACA; }
+.content { padding:28px 32px; }
+.stats-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:28px; }
+.stat-card { background:white; border-radius:16px; padding:20px 22px; box-shadow:var(--card-shadow); border:1px solid var(--border); transition:transform 0.15s; }
+.stat-card:hover { transform:translateY(-2px); }
+.stat-icon { width:40px; height:40px; border-radius:10px; display:flex; align-items:center; justify-content:center; margin-bottom:14px; }
+.stat-num { font-family:'DM Mono',monospace; font-size:28px; font-weight:500; color:var(--dark2); line-height:1; }
+.stat-label { font-size:12px; color:var(--muted); margin-top:4px; }
+.stat-change { font-size:11px; font-weight:600; margin-top:8px; display:flex; align-items:center; gap:4px; }
+.up { color:var(--success); }
+.charts-row { display:grid; grid-template-columns:1.6fr 1fr; gap:16px; margin-bottom:28px; }
+.chart-card { background:white; border-radius:16px; padding:22px; box-shadow:var(--card-shadow); border:1px solid var(--border); }
+.card-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }
+.card-title { font-size:14px; font-weight:700; color:var(--dark2); }
+.card-sub { font-size:12px; color:var(--muted); margin-top:2px; }
+.bar-chart { display:flex; align-items:flex-end; gap:8px; height:120px; }
+.bar-wrap { flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; }
+.bar { width:100%; border-radius:6px 6px 0 0; background:linear-gradient(to top,var(--teal),var(--teal-light)); }
+.bar-label { font-size:10px; color:var(--muted); }
+.donut-wrap { display:flex; align-items:center; gap:20px; }
+.donut-svg { width:110px; height:110px; flex-shrink:0; }
+.legend-item { display:flex; align-items:center; gap:8px; margin-bottom:10px; }
+.legend-dot { width:8px; height:8px; border-radius:50%; }
+.legend-label { font-size:12px; color:var(--muted); }
+.legend-val { font-size:13px; font-weight:700; color:var(--dark2); margin-right:auto; font-family:'DM Mono',monospace; }
+.table-card { background:white; border-radius:16px; box-shadow:var(--card-shadow); border:1px solid var(--border); overflow:hidden; }
+.table-toolbar { padding:18px 22px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+.search-box { display:flex; align-items:center; gap:8px; background:var(--bg); border:1px solid var(--border); border-radius:10px; padding:8px 14px; flex:1; max-width:300px; }
+.search-box input { border:none; background:transparent; font-family:'Tajawal',sans-serif; font-size:13px; color:var(--text); outline:none; width:100%; }
+.search-box svg { color:var(--muted); width:14px; height:14px; flex-shrink:0; }
+.filter-tabs { display:flex; gap:4px; }
+.filter-tab { padding:6px 14px; border-radius:8px; font-size:12px; font-weight:600; cursor:pointer; border:1px solid transparent; transition:all 0.15s; font-family:'Tajawal',sans-serif; }
+.filter-tab.active { background:var(--teal); color:white; }
+.filter-tab:not(.active) { color:var(--muted); }
+.filter-tab:not(.active):hover { background:var(--bg); border-color:var(--border); }
+table { width:100%; border-collapse:collapse; }
+thead { background:var(--bg); }
+thead th { padding:11px 18px; font-size:11px; font-weight:700; color:var(--muted); text-align:right; letter-spacing:0.5px; border-bottom:1px solid var(--border); }
+tbody tr { border-bottom:1px solid rgba(13,148,136,0.06); transition:background 0.1s; }
+tbody tr:hover { background:#F7FDFC; }
+tbody tr:last-child { border-bottom:none; }
+tbody td { padding:13px 18px; font-size:13px; color:var(--text); }
+.school-cell { display:flex; align-items:center; gap:10px; }
+.school-avatar { width:34px; height:34px; border-radius:9px; background:linear-gradient(135deg,var(--dark2),var(--teal)); display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:800; color:white; flex-shrink:0; }
+.school-name { font-weight:700; font-size:13px; color:var(--dark2); }
+.school-email { font-size:11px; color:var(--muted); }
+.badge { display:inline-flex; align-items:center; gap:4px; padding:4px 10px; border-radius:20px; font-size:11px; font-weight:700; }
+.badge-active { background:#D1FAE5; color:#065F46; }
+.badge-trial { background:#DBEAFE; color:#1E40AF; }
+.badge-expired { background:#FEE2E2; color:#991B1B; }
+.badge-basic { background:var(--teal-xlight); color:var(--dark3); }
+.badge-pro { background:#FEF3C7; color:#92400E; }
+.plan-price { font-family:'DM Mono',monospace; font-size:12px; font-weight:500; }
+.action-btns { display:flex; gap:5px; }
+.action-btn { width:30px; height:30px; border-radius:8px; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.15s; }
+.action-btn svg { width:13px; height:13px; }
+.btn-toggle-on { background:#D1FAE5; color:#065F46; }
+.btn-toggle-on:hover { background:#A7F3D0; }
+.btn-toggle-off { background:#FEE2E2; color:#991B1B; }
+.btn-toggle-off:hover { background:#FECACA; }
+.btn-del { background:#FEE2E2; color:#991B1B; }
+.btn-del:hover { background:#FECACA; }
+.revenue-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; margin-bottom:24px; }
+.revenue-card { background:white; border-radius:16px; padding:22px; box-shadow:var(--card-shadow); border:1px solid var(--border); }
+.revenue-month { font-size:12px; color:var(--muted); margin-bottom:8px; }
+.revenue-amount { font-family:'DM Mono',monospace; font-size:26px; font-weight:500; color:var(--dark2); }
+.revenue-currency { font-size:13px; color:var(--muted); margin-right:4px; }
+.timeline-row { display:flex; align-items:center; justify-content:space-between; padding:12px 0; border-bottom:1px solid var(--border); font-size:13px; }
+.timeline-row:last-child { border-bottom:none; }
+.timeline-school { font-weight:700; color:var(--dark2); }
+.timeline-plan { color:var(--muted); font-size:12px; }
+.timeline-amount { font-family:'DM Mono',monospace; font-weight:500; color:var(--teal); }
+.timeline-date { font-size:11px; color:var(--muted); }
+.plans-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:24px; }
+.plan-card { background:white; border-radius:16px; padding:24px; box-shadow:var(--card-shadow); border:1px solid var(--border); }
+.plan-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; }
+.plan-name-big { font-size:16px; font-weight:800; color:var(--dark2); }
+.plan-prices { display:flex; gap:12px; }
+.price-option { flex:1; text-align:center; padding:12px; background:var(--bg); border-radius:10px; border:1px solid var(--border); }
+.price-val { font-family:'DM Mono',monospace; font-size:22px; font-weight:500; color:var(--dark2); }
+.price-period { font-size:11px; color:var(--muted); margin-top:2px; }
+.price-save { font-size:10px; font-weight:700; color:var(--teal); background:var(--teal-xlight); padding:2px 6px; border-radius:4px; margin-top:4px; display:inline-block; }
+.connect-section { background:white; border-radius:16px; padding:24px; box-shadow:var(--card-shadow); border:1px solid var(--border); margin-bottom:16px; }
+.connect-title { font-size:15px; font-weight:700; color:var(--dark2); margin-bottom:6px; }
+.connect-desc { font-size:13px; color:var(--muted); margin-bottom:16px; line-height:1.7; }
+.code-block { background:var(--dark2); border-radius:10px; padding:16px; font-family:'DM Mono',monospace; font-size:12px; color:#14B8A6; line-height:1.8; overflow-x:auto; }
+.code-block .c { color:rgba(255,255,255,0.35); }
+.step-row { display:flex; align-items:flex-start; gap:12px; margin-bottom:18px; }
+.step-num { display:inline-flex; align-items:center; justify-content:center; width:24px; height:24px; border-radius:50%; background:var(--teal); color:white; font-size:11px; font-weight:700; flex-shrink:0; margin-top:2px; }
+.modal-overlay { position:fixed; inset:0; background:rgba(4,31,28,0.6); z-index:500; display:flex; align-items:center; justify-content:center; opacity:0; pointer-events:none; transition:opacity 0.2s; backdrop-filter:blur(4px); }
+.modal-overlay.show { opacity:1; pointer-events:all; }
+.modal { background:white; border-radius:20px; padding:32px; width:480px; max-width:90vw; transform:translateY(20px); transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1); }
+.modal-overlay.show .modal { transform:translateY(0); }
+.modal-title { font-size:18px; font-weight:800; color:var(--dark2); margin-bottom:6px; }
+.modal-sub { font-size:13px; color:var(--muted); margin-bottom:24px; }
+.modal-field { margin-bottom:16px; }
+.modal-field label { display:block; font-size:12px; font-weight:700; color:var(--muted); margin-bottom:6px; letter-spacing:0.5px; }
+.modal-field input, .modal-field select { width:100%; border:1.5px solid var(--border); border-radius:10px; padding:10px 14px; font-family:'Tajawal',sans-serif; font-size:13px; color:var(--text); outline:none; transition:border-color 0.2s; background:white; }
+.modal-field input:focus, .modal-field select:focus { border-color:var(--teal); }
+.modal-footer { display:flex; gap:10px; justify-content:flex-end; margin-top:24px; }
+.confirm-modal { background:white; border-radius:20px; padding:28px; width:380px; max-width:90vw; transform:translateY(20px); transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1); text-align:center; }
+.modal-overlay.show .confirm-modal { transform:translateY(0); }
+.confirm-icon { width:52px; height:52px; border-radius:50%; background:#FEE2E2; display:flex; align-items:center; justify-content:center; margin:0 auto 16px; }
+.toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(80px); background:var(--dark2); color:white; padding:12px 20px; border-radius:12px; font-size:13px; font-weight:600; z-index:9999; transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1); display:flex; align-items:center; gap:8px; box-shadow:0 8px 32px rgba(6,46,42,0.3); }
+.toast.show { transform:translateX(-50%) translateY(0); }
+.page { display:none; }
+.page.active { display:block; }
+@keyframes fadeIn { from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);} }
+.content>* { animation:fadeIn 0.3s ease; }
+</style>
+</head>
+<body>
+
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-logo"><div class="brand">يُ<span>سر</span></div><p>ADMIN PORTAL · لوحة التحكم</p></div>
+    <div class="login-field"><label>البريد الإلكتروني</label><input type="email" id="login-email" value="admin@school.sa"></div>
+    <div class="login-field"><label>كلمة المرور</label><input type="password" id="login-pass" value="123456"></div>
+    <button class="login-btn" onclick="doLogin()">دخول</button>
+    <div class="login-error" id="login-error"></div>
+  </div>
+</div>
+
+<aside class="sidebar">
+  <div class="sidebar-logo"><div class="brand">يُ<span>سر</span></div><p>PLATFORM ADMIN</p></div>
+  <nav>
+    <div class="nav-label">الرئيسية</div>
+    <div class="nav-item active" onclick="showPage('dashboard',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>لوحة المتابعة</div>
+    <div class="nav-label">الإدارة</div>
+    <div class="nav-item" onclick="showPage('subscribers',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>المشتركون</div>
+    <div class="nav-item" onclick="showPage('revenue',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>الإيرادات</div>
+    <div class="nav-item" onclick="showPage('plans',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>الباقات</div>
+    <div class="nav-label">المطور</div>
+    <div class="nav-item" onclick="showPage('connect',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>ربط الموقع</div>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="admin-badge">
+      <div class="admin-avatar">م</div>
+      <div class="admin-info"><div class="name">مدير المنصة</div><div class="role">system_admin</div></div>
+      <button class="logout-btn" onclick="doLogout()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></button>
+    </div>
+  </div>
+</aside>
+
+<main class="main">
+  <div class="topbar">
+    <div><div class="topbar-title" id="page-title">لوحة المتابعة</div><div class="topbar-sub" id="page-sub">نظرة عامة على المنصة</div></div>
+    <div class="topbar-actions">
+      <button class="btn btn-ghost" onclick="refreshData()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>تحديث</button>
+      <button class="btn btn-primary" onclick="openAddModal()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>إضافة مدرسة</button>
+    </div>
+  </div>
+  <div class="content">
+
+    <!-- DASHBOARD -->
+    <div id="page-dashboard" class="page active">
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-icon" style="background:#E0FAF5;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0D9488" stroke-width="2" stroke-linecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div><div class="stat-num" id="s-total">0</div><div class="stat-label">إجمالي المدارس</div><div class="stat-change up">↑ 4 هذا الشهر</div></div>
+        <div class="stat-card"><div class="stat-icon" style="background:#D1FAE5;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2" stroke-linecap="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div><div class="stat-num" id="s-active">0</div><div class="stat-label">اشتراكات نشطة</div><div class="stat-change up">↑ 3 هذا الشهر</div></div>
+        <div class="stat-card"><div class="stat-icon" style="background:#DBEAFE;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><div class="stat-num" id="s-trial">0</div><div class="stat-label">فترة تجريبية</div></div>
+        <div class="stat-card"><div class="stat-icon" style="background:#FEF3C7;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#D97706" stroke-width="2" stroke-linecap="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div><div class="stat-num" id="s-rev">0</div><div class="stat-label">إيرادات الشهر (ر.س)</div><div class="stat-change up">↑ 12%</div></div>
+      </div>
+      <div class="charts-row">
+        <div class="chart-card"><div class="card-header"><div><div class="card-title">الاشتراكات الجديدة</div><div class="card-sub">آخر 7 أشهر</div></div></div><div class="bar-chart" id="bar-chart"></div></div>
+        <div class="chart-card"><div class="card-header"><div><div class="card-title">توزيع الباقات</div><div class="card-sub">الاشتراكات النشطة</div></div></div>
+          <div class="donut-wrap">
+            <svg class="donut-svg" viewBox="0 0 120 120">
+              <circle cx="60" cy="60" r="45" fill="none" stroke="#F0F8F7" stroke-width="18"/>
+              <circle cx="60" cy="60" r="45" fill="none" stroke="#0D9488" stroke-width="18" stroke-dasharray="141 142" stroke-dashoffset="-42" transform="rotate(-90 60 60)"/>
+              <circle cx="60" cy="60" r="45" fill="none" stroke="#F5A623" stroke-width="18" stroke-dasharray="141 142" stroke-dashoffset="-183" transform="rotate(-90 60 60)"/>
+              <text x="60" y="56" text-anchor="middle" font-size="16" font-weight="800" font-family="DM Mono" fill="#062E2A" id="donut-num">0</text>
+              <text x="60" y="70" text-anchor="middle" font-size="9" fill="#6B8F8D" font-family="Tajawal">نشط</text>
+            </svg>
+            <div><div class="legend-item"><div class="legend-dot" style="background:#0D9488"></div><div class="legend-label">أساسي</div><div class="legend-val" id="l-basic">0</div></div><div class="legend-item"><div class="legend-dot" style="background:#F5A623"></div><div class="legend-label">احترافي</div><div class="legend-val" id="l-pro">0</div></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SUBSCRIBERS -->
+    <div id="page-subscribers" class="page">
+      <div class="table-card">
+        <div class="table-toolbar">
+          <div class="search-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" placeholder="ابحث عن مدرسة..." oninput="filterTable(this.value)"></div>
+          <div class="filter-tabs">
+            <button class="filter-tab active" onclick="filterStatus('all',this)">الكل</button>
+            <button class="filter-tab" onclick="filterStatus('active',this)">نشط</button>
+            <button class="filter-tab" onclick="filterStatus('trial',this)">تجريبي</button>
+            <button class="filter-tab" onclick="filterStatus('expired',this)">منتهي</button>
+          </div>
+        </div>
+        <table>
+          <thead><tr><th>المدرسة</th><th>الباقة</th><th>الدفع</th><th>الحالة</th><th>الانتهاء</th><th>الإيراد/شهر</th><th>إجراءات</th></tr></thead>
+          <tbody id="subscribers-table"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- REVENUE -->
+    <div id="page-revenue" class="page">
+      <div class="revenue-grid">
+        <div class="revenue-card"><div class="revenue-month">هذا الشهر</div><div class="revenue-amount" id="rev-month"><span class="revenue-currency">ر.س</span>0</div><div class="stat-change up" style="margin-top:8px;">↑ 12% عن الشهر السابق</div></div>
+        <div class="revenue-card"><div class="revenue-month">متوقع سنوياً</div><div class="revenue-amount" id="rev-year"><span class="revenue-currency">ر.س</span>0</div></div>
+        <div class="revenue-card"><div class="revenue-month">متوسط الاشتراك</div><div class="revenue-amount" id="rev-avg"><span class="revenue-currency">ر.س</span>0</div></div>
+      </div>
+      <div class="table-card"><div class="table-toolbar"><div><div class="card-title">سجل المدفوعات</div></div></div><div style="padding:0 22px;"><div id="revenue-timeline"></div></div></div>
+    </div>
+
+    <!-- PLANS -->
+    <div id="page-plans" class="page">
+      <div class="plans-grid">
+        <div class="plan-card">
+          <div class="plan-header"><div class="plan-name-big">الباقة الأساسية</div><span class="badge badge-basic">أساسي</span></div>
+          <div class="plan-prices">
+            <div class="price-option"><div class="price-val">49</div><div class="price-period">ر.س / شهر</div></div>
+            <div class="price-option" style="border-color:var(--teal);"><div class="price-val" style="color:var(--teal);">199</div><div class="price-period">ر.س / سنة</div><div class="price-save">وفر 33%</div></div>
+          </div>
+        </div>
+        <div class="plan-card" style="border-color:var(--gold);">
+          <div class="plan-header"><div class="plan-name-big">الباقة الاحترافية</div><span class="badge badge-pro">احترافي</span></div>
+          <div class="plan-prices">
+            <div class="price-option"><div class="price-val">89</div><div class="price-period">ر.س / شهر</div></div>
+            <div class="price-option" style="border-color:var(--gold);"><div class="price-val" style="color:#D97706;">299</div><div class="price-period">ر.س / سنة</div><div class="price-save" style="background:#FEF3C7;color:#92400E;">وفر 28%</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="table-card"><div class="table-toolbar"><div class="card-title">توزيع المشتركين</div></div><div style="padding:16px 22px;display:flex;gap:16px;" id="plan-dist"></div></div>
+    </div>
+
+    <!-- CONNECT -->
+    <div id="page-connect" class="page">
+      <div class="connect-section">
+        <div class="connect-title">كيف تربط لوحة التحكم بموقعك على Railway</div>
+        <div class="connect-desc">اللوحة تتصل بنفس الـ API — نفس قاعدة البيانات، نفس المستخدمين. كل اللي تحتاجه 4 خطوات.</div>
+        <div>
+          <div class="step-row"><span class="step-num">1</span><div><div style="font-size:13px;font-weight:700;color:var(--dark2);margin-bottom:6px;">عدّل رابط الـ API في أعلى الـ script</div><div class="code-block"><span class="c">// غيّر هذا السطر</span><br>const API = '<span style="color:#F5A623;">https://workspaceapi-server-production-51a7.up.railway.app</span>';</div></div></div>
+          <div class="step-row"><span class="step-num">2</span><div><div style="font-size:13px;font-weight:700;color:var(--dark2);margin-bottom:6px;">أضف endpoints للأدمن في api-server</div><div class="code-block">GET    /api/admin/subscriptions<br>PUT    /api/admin/subscriptions/:id<br>DELETE /api/admin/users/:id<br>POST   /api/admin/users</div></div></div>
+          <div class="step-row"><span class="step-num">3</span><div><div style="font-size:13px;font-weight:700;color:var(--dark2);margin-bottom:6px;">أضف حماية للـ endpoints — system_admin فقط</div><div class="code-block"><span class="c">// middleware/adminAuth.ts</span><br>if (req.user.role !== 'system_admin') {<br>&nbsp;&nbsp;return res.status(403).json({ error: 'غير مصرح' });<br>}</div></div></div>
+          <div class="step-row"><span class="step-num">4</span><div><div style="font-size:13px;font-weight:700;color:var(--dark2);margin-bottom:6px;">ارفع لوحة التحكم على Vercel كمشروع منفصل</div><div class="code-block"><span class="c"># ارفع yusr-admin.html على Vercel</span><br><span class="c"># أو حطه في مجلد admin/ في نفس المستودع</span></div></div></div>
+        </div>
+      </div>
+      <div class="connect-section">
+        <div class="connect-title">بيانات الدخول الحالية (تجريبية)</div>
+        <div class="connect-desc">البيانات الحين وهمية للعرض فقط. بعد ربط الـ API تصبح حقيقية من قاعدة بياناتك.</div>
+        <div class="code-block">البريد: admin@school.sa &nbsp;&nbsp; كلمة السر: 123456</div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<!-- ADD MODAL -->
+<div class="modal-overlay" id="add-modal">
+  <div class="modal">
+    <div class="modal-title">إضافة مدرسة جديدة</div>
+    <div class="modal-sub">أدخل بيانات المدرسة لإنشاء حساب وتفعيل الاشتراك</div>
+    <div class="modal-field"><label>اسم المدرسة</label><input type="text" id="new-name" placeholder="مدرسة النور الأهلية"></div>
+    <div class="modal-field"><label>البريد الإلكتروني</label><input type="email" id="new-email" placeholder="admin@school.sa" dir="ltr"></div>
+    <div class="modal-field"><label>الباقة</label>
+      <select id="new-plan">
+        <option value="basic_monthly">أساسي — 49 ر.س/شهر</option>
+        <option value="basic_yearly">أساسي — 199 ر.س/سنة</option>
+        <option value="pro_monthly">احترافي — 89 ر.س/شهر</option>
+        <option value="pro_yearly">احترافي — 299 ر.س/سنة</option>
+      </select>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('add-modal')">إلغاء</button>
+      <button class="btn btn-primary" onclick="addSchool()">إنشاء الحساب</button>
+    </div>
+  </div>
+</div>
+
+<!-- DELETE CONFIRM -->
+<div class="modal-overlay" id="delete-modal">
+  <div class="confirm-modal">
+    <div class="confirm-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#991B1B" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg></div>
+    <div style="font-size:16px;font-weight:800;color:var(--dark2);margin-bottom:8px;">حذف المشترك</div>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:24px;" id="delete-msg">هل أنت متأكد؟</div>
+    <div style="display:flex;gap:10px;justify-content:center;">
+      <button class="btn btn-ghost" onclick="closeModal('delete-modal')">إلغاء</button>
+      <button class="btn btn-danger" onclick="confirmDelete()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>نعم، احذف</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg><span id="toast-msg"></span></div>
+
+<script>
+const API='https://workspaceapi-server-production-51a7.up.railway.app';
+let currentFilter='all',searchTerm='',deleteTarget=null;
+const PLANS={basic_monthly:{label:'أساسي',period:'شهري',price:49,badge:'badge-basic'},basic_yearly:{label:'أساسي',period:'سنوي',price:199,badge:'badge-basic'},pro_monthly:{label:'احترافي',period:'شهري',price:89,badge:'badge-pro'},pro_yearly:{label:'احترافي',period:'سنوي',price:299,badge:'badge-pro'}};
+let schools=[
+  {id:1,name:'مدرسة النور الأهلية',email:'admin@alnoor.sa',plan:'pro_monthly',status:'active',expiry:'2025-12-01'},
+  {id:2,name:'مدرسة الفجر الابتدائية',email:'admin@alfajr.sa',plan:'basic_monthly',status:'active',expiry:'2025-11-15'},
+  {id:3,name:'ثانوية الأمل للبنات',email:'info@alamal.sa',plan:'pro_yearly',status:'active',expiry:'2026-01-20'},
+  {id:4,name:'مدرسة الريادة المتوسطة',email:'admin@alriada.sa',plan:'basic_monthly',status:'trial',expiry:'2025-09-30'},
+  {id:5,name:'مجمع العلوم التعليمي',email:'info@aloloom.sa',plan:'basic_yearly',status:'active',expiry:'2025-10-10'},
+  {id:6,name:'مدرسة الإبداع الدولية',email:'admin@ibdaa.sa',plan:'pro_yearly',status:'active',expiry:'2026-03-15'},
+  {id:7,name:'روضة البراعم',email:'admin@baraem.sa',plan:'basic_monthly',status:'trial',expiry:'2025-09-25'},
+  {id:8,name:'مدرسة الوفاء الخاصة',email:'info@alwafa.sa',plan:'pro_monthly',status:'expired',expiry:'2025-08-01'},
+];
+const payments=[
+  {school:'ثانوية الأمل للبنات',plan:'احترافي سنوي',amount:299,date:'2025-09-01'},
+  {school:'مدرسة النور الأهلية',plan:'احترافي شهري',amount:89,date:'2025-09-01'},
+  {school:'مجمع العلوم التعليمي',plan:'أساسي سنوي',amount:199,date:'2025-09-01'},
+  {school:'مدرسة الفجر الابتدائية',plan:'أساسي شهري',amount:49,date:'2025-09-01'},
+  {school:'مدرسة الإبداع الدولية',plan:'احترافي سنوي',amount:299,date:'2025-08-15'},
+  {school:'ثانوية الأمل للبنات',plan:'احترافي سنوي',amount:299,date:'2025-08-01'},
+  {school:'مدرسة النور الأهلية',plan:'احترافي شهري',amount:89,date:'2025-08-01'},
+  {school:'مجمع العلوم التعليمي',plan:'أساسي سنوي',amount:199,date:'2025-08-01'},
+  {school:'مدرسة الفجر الابتدائية',plan:'أساسي شهري',amount:49,date:'2025-08-01'},
+  {school:'مدرسة الإبداع الدولية',plan:'احترافي سنوي',amount:299,date:'2025-07-20'},
+];
+const barData=[{month:'مار',val:3},{month:'أبر',val:5},{month:'ماي',val:4},{month:'يون',val:7},{month:'يول',val:6},{month:'أغس',val:8},{month:'سبت',val:4}];
+
+function calcRev(s){if(s.status!=='active')return 0;const p=PLANS[s.plan];return p.period==='شهري'?p.price:Math.round(p.price/12);}
+
+function updateStats(){
+  const active=schools.filter(s=>s.status==='active');
+  const trial=schools.filter(s=>s.status==='trial');
+  const rev=active.reduce((sum,s)=>sum+calcRev(s),0);
+  const basic=active.filter(s=>s.plan.startsWith('basic')).length;
+  const pro=active.filter(s=>s.plan.startsWith('pro')).length;
+  document.getElementById('s-total').textContent=schools.length;
+  document.getElementById('s-active').textContent=active.length;
+  document.getElementById('s-trial').textContent=trial.length;
+  document.getElementById('s-rev').textContent=rev.toLocaleString();
+  document.getElementById('donut-num').textContent=active.length;
+  document.getElementById('l-basic').textContent=basic;
+  document.getElementById('l-pro').textContent=pro;
+  const rm=document.getElementById('rev-month');if(rm)rm.innerHTML=`<span class="revenue-currency">ر.س</span>${rev.toLocaleString()}`;
+  const ry=document.getElementById('rev-year');if(ry)ry.innerHTML=`<span class="revenue-currency">ر.س</span>${(rev*12).toLocaleString()}`;
+  const ra=document.getElementById('rev-avg');if(ra&&active.length)ra.innerHTML=`<span class="revenue-currency">ر.س</span>${Math.round(rev/active.length)}`;
+  const pd=document.getElementById('plan-dist');
+  if(pd)pd.innerHTML=`<div style="flex:1;background:var(--bg);border-radius:12px;padding:16px;text-align:center;"><div style="font-size:28px;font-weight:800;color:var(--teal);">${basic}</div><div style="font-size:12px;color:var(--muted);margin-top:4px;">أساسي</div></div><div style="flex:1;background:var(--bg);border-radius:12px;padding:16px;text-align:center;"><div style="font-size:28px;font-weight:800;color:#D97706;">${pro}</div><div style="font-size:12px;color:var(--muted);margin-top:4px;">احترافي</div></div><div style="flex:1;background:var(--bg);border-radius:12px;padding:16px;text-align:center;"><div style="font-size:28px;font-weight:800;color:var(--muted);">${trial.length}</div><div style="font-size:12px;color:var(--muted);margin-top:4px;">تجريبي</div></div>`;
+}
+
+function renderBars(){const max=Math.max(...barData.map(d=>d.val));document.getElementById('bar-chart').innerHTML=barData.map(d=>`<div class="bar-wrap"><div class="bar" style="height:${(d.val/max)*100}px"></div><div class="bar-label">${d.month}</div></div>`).join('');}
+
+function renderSubscribers(){
+  const sL={active:'نشط',trial:'تجريبي',expired:'منتهي'};
+  const sB={active:'badge-active',trial:'badge-trial',expired:'badge-expired'};
+  const data=schools.filter(s=>{
+    const mf=currentFilter==='all'||s.status===currentFilter;
+    const ms=!searchTerm||s.name.includes(searchTerm)||s.email.includes(searchTerm);
+    return mf&&ms;
+  });
+  document.getElementById('subscribers-table').innerHTML=data.map(s=>{
+    const p=PLANS[s.plan];const rev=calcRev(s);
+    return`<tr><td><div class="school-cell"><div class="school-avatar">${s.name[0]}</div><div><div class="school-name">${s.name}</div><div class="school-email">${s.email}</div></div></div></td><td><span class="badge ${p.badge}">${p.label}</span></td><td><span style="font-size:12px;color:var(--muted);">${p.period}</span></td><td><span class="badge ${sB[s.status]}">${sL[s.status]}</span></td><td style="font-size:12px;color:var(--muted);">${s.expiry}</td><td><span class="plan-price">${rev>0?rev+' ر.س':'—'}</span></td><td><div class="action-btns">${s.status!=='expired'?`<button class="action-btn btn-toggle-on" onclick="toggleSchool(${s.id},false)" title="إيقاف"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><rect x="1" y="5" width="22" height="14" rx="7"/><circle cx="16" cy="12" r="3" fill="currentColor" stroke="none"/></svg></button>`:`<button class="action-btn btn-toggle-off" onclick="toggleSchool(${s.id},true)" title="تفعيل"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><rect x="1" y="5" width="22" height="14" rx="7"/><circle cx="8" cy="12" r="3" fill="currentColor" stroke="none"/></svg></button>`}<button class="action-btn btn-del" onclick="askDelete(${s.id})" title="حذف"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg></button></div></td></tr>`;
+  }).join('');
+}
+
+function renderRevenue(){const tl=document.getElementById('revenue-timeline');if(!tl)return;tl.innerHTML=payments.map(p=>`<div class="timeline-row"><div><div class="timeline-school">${p.school}</div><div class="timeline-plan">${p.plan}</div></div><div style="text-align:left;"><div class="timeline-amount">${p.amount} ر.س</div><div class="timeline-date">${p.date}</div></div></div>`).join('');}
+
+function toggleSchool(id,activate){const s=schools.find(x=>x.id===id);if(!s)return;s.status=activate?'active':'expired';updateStats();renderSubscribers();showToast(activate?'تم تفعيل '+s.name:'تم إيقاف '+s.name);}
+function askDelete(id){deleteTarget=id;const s=schools.find(x=>x.id===id);document.getElementById('delete-msg').textContent=`هل أنت متأكد من حذف "${s.name}"؟`;document.getElementById('delete-modal').classList.add('show');}
+function confirmDelete(){if(!deleteTarget)return;const s=schools.find(x=>x.id===deleteTarget);schools=schools.filter(x=>x.id!==deleteTarget);deleteTarget=null;closeModal('delete-modal');updateStats();renderSubscribers();showToast('تم حذف '+s.name);}
+function filterStatus(status,btn){currentFilter=status;document.querySelectorAll('.filter-tab').forEach(t=>t.classList.remove('active'));btn.classList.add('active');renderSubscribers();}
+function filterTable(val){searchTerm=val;renderSubscribers();}
+function showPage(page,navItem){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+  navItem.classList.add('active');
+  const t={dashboard:['لوحة المتابعة','نظرة عامة على المنصة'],subscribers:['المشتركون','إدارة مدارس يُسر'],revenue:['الإيرادات','سجل المدفوعات'],plans:['الباقات','أسعار الاشتراكات'],connect:['ربط الموقع','توصيل لوحة التحكم بالـ API']};
+  document.getElementById('page-title').textContent=t[page][0];
+  document.getElementById('page-sub').textContent=t[page][1];
+  if(page==='revenue')renderRevenue();
+  if(page==='plans')updateStats();
+}
+function openAddModal(){document.getElementById('add-modal').classList.add('show');}
+function closeModal(id){document.getElementById(id).classList.remove('show');}
+function addSchool(){
+  const name=document.getElementById('new-name').value.trim();
+  const email=document.getElementById('new-email').value.trim();
+  const plan=document.getElementById('new-plan').value;
+  if(!name||!email){showToast('أدخل الاسم والبريد');return;}
+  const d=new Date();d.setDate(d.getDate()+7);
+  schools.push({id:Date.now(),name,email,plan,status:'trial',expiry:d.toISOString().split('T')[0]});
+  closeModal('add-modal');updateStats();renderSubscribers();showToast('تم إنشاء حساب '+name);
+  document.getElementById('new-name').value='';document.getElementById('new-email').value='';
+}
+function showToast(msg){const t=document.getElementById('toast');document.getElementById('toast-msg').textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2800);}
+function refreshData(){updateStats();renderSubscribers();showToast('تم التحديث');}
+function doLogin(){
+  const e=document.getElementById('login-email').value;
+  const p=document.getElementById('login-pass').value;
+  if(e==='admin@school.sa'&&p==='123456'){localStorage.setItem('yusr_admin_token','demo');document.getElementById('login-screen').classList.add('hidden');init();}
+  else{document.getElementById('login-error').textContent='بيانات غير صحيحة';}
+}
+function doLogout(){localStorage.removeItem('yusr_admin_token');document.getElementById('login-screen').classList.remove('hidden');}
+function init(){renderBars();updateStats();renderSubscribers();}
+if(localStorage.getItem('yusr_admin_token')){document.getElementById('login-screen').classList.add('hidden');init();}
+document.getElementById('login-pass').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+</script>
+</body>
+</html>

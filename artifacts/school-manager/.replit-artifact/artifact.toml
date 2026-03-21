@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "نظام إدارة المدرسة"
+version = "1.0.0"
+id = "artifacts/school-manager"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+localPort = 18644
+name = "web"
+paths = ["/"]
+
+[services.development]
+run = "pnpm --filter @workspace/school-manager run dev"
+
+[services.env]
+PORT = "18644"
+BASE_PATH = "/"
+
+[services.production]
+build = ["pnpm", "--filter", "@workspace/school-manager", "run", "build"]
+publicDir = "artifacts/school-manager/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"

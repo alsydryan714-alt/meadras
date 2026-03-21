@@ -1,0 +1,677 @@
+openapi: 3.1.0
+info:
+  title: Api
+  version: 0.1.0
+  description: School Management API
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: teachers
+    description: Teacher operations
+  - name: classes
+    description: Class operations
+  - name: subjects
+    description: Subject operations
+  - name: timetable
+    description: Timetable operations
+  - name: substitutions
+    description: Substitution operations
+  - name: exams
+    description: Exam committee operations
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+
+  /teachers:
+    get:
+      operationId: getTeachers
+      tags: [teachers]
+      summary: List all teachers
+      responses:
+        "200":
+          description: List of teachers
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Teacher"
+    post:
+      operationId: createTeacher
+      tags: [teachers]
+      summary: Create a teacher
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateTeacher"
+      responses:
+        "201":
+          description: Created teacher
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Teacher"
+
+  /teachers/{id}:
+    put:
+      operationId: updateTeacher
+      tags: [teachers]
+      summary: Update a teacher
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateTeacher"
+      responses:
+        "200":
+          description: Updated teacher
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Teacher"
+    delete:
+      operationId: deleteTeacher
+      tags: [teachers]
+      summary: Delete a teacher
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /classes:
+    get:
+      operationId: getClasses
+      tags: [classes]
+      summary: List all classes
+      responses:
+        "200":
+          description: List of classes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SchoolClass"
+    post:
+      operationId: createClass
+      tags: [classes]
+      summary: Create a class
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateClass"
+      responses:
+        "201":
+          description: Created class
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SchoolClass"
+
+  /classes/{id}:
+    delete:
+      operationId: deleteClass
+      tags: [classes]
+      summary: Delete a class
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /subjects:
+    get:
+      operationId: getSubjects
+      tags: [subjects]
+      summary: List all subjects
+      responses:
+        "200":
+          description: List of subjects
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Subject"
+    post:
+      operationId: createSubject
+      tags: [subjects]
+      summary: Create a subject
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateSubject"
+      responses:
+        "201":
+          description: Created subject
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Subject"
+
+  /subjects/{id}:
+    delete:
+      operationId: deleteSubject
+      tags: [subjects]
+      summary: Delete a subject
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /timetable:
+    get:
+      operationId: getTimetable
+      tags: [timetable]
+      summary: Get full timetable
+      responses:
+        "200":
+          description: List of timetable slots
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TimetableSlot"
+    post:
+      operationId: createTimetableSlot
+      tags: [timetable]
+      summary: Create a timetable slot
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateTimetableSlot"
+      responses:
+        "201":
+          description: Created slot
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TimetableSlot"
+
+  /timetable/{id}:
+    put:
+      operationId: updateTimetableSlot
+      tags: [timetable]
+      summary: Update a timetable slot
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateTimetableSlot"
+      responses:
+        "200":
+          description: Updated slot
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TimetableSlot"
+    delete:
+      operationId: deleteTimetableSlot
+      tags: [timetable]
+      summary: Delete a timetable slot
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /substitutions:
+    get:
+      operationId: getSubstitutions
+      tags: [substitutions]
+      summary: Get substitutions for a date
+      parameters:
+        - name: date
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Substitution plan for the day
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DailySubstitutionPlan"
+    post:
+      operationId: saveSubstitutions
+      tags: [substitutions]
+      summary: Save substitution assignments for a date
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SaveSubstitutions"
+      responses:
+        "200":
+          description: Saved substitutions
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DailySubstitutionPlan"
+
+  /substitutions/recommend:
+    post:
+      operationId: recommendSubstitutions
+      tags: [substitutions]
+      summary: Get substitution recommendations for absent teachers
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RecommendSubstitutionsRequest"
+      responses:
+        "200":
+          description: Recommendations per slot
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SubstitutionRecommendation"
+
+  /substitutions/weekly-counts:
+    get:
+      operationId: getWeeklySubstitutionCounts
+      tags: [substitutions]
+      summary: Get substitution counts for current week per teacher
+      responses:
+        "200":
+          description: Weekly substitution counts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/WeeklySubstitutionCount"
+
+  /exam-committees:
+    post:
+      operationId: generateExamCommittee
+      tags: [exams]
+      summary: Generate exam proctoring assignments
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GenerateExamCommitteeRequest"
+      responses:
+        "200":
+          description: Generated committee assignments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/RoomAssignment"
+    get:
+      operationId: getExamCommittees
+      tags: [exams]
+      summary: Get saved exam committee assignments
+      responses:
+        "200":
+          description: Saved committee assignments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SavedExamCommittee"
+    put:
+      operationId: saveExamCommittee
+      tags: [exams]
+      summary: Save exam committee assignment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SaveExamCommitteeRequest"
+      responses:
+        "200":
+          description: Saved
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SavedExamCommittee"
+
+components:
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required: [status]
+
+    Teacher:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        subject:
+          type: string
+        maxWeeklyHours:
+          type: integer
+        weeklySubstitutionCount:
+          type: integer
+      required: [id, name, subject, maxWeeklyHours, weeklySubstitutionCount]
+
+    CreateTeacher:
+      type: object
+      properties:
+        name:
+          type: string
+        subject:
+          type: string
+        maxWeeklyHours:
+          type: integer
+      required: [name, subject, maxWeeklyHours]
+
+    SchoolClass:
+      type: object
+      properties:
+        id:
+          type: integer
+        grade:
+          type: string
+        section:
+          type: string
+      required: [id, grade, section]
+
+    CreateClass:
+      type: object
+      properties:
+        grade:
+          type: string
+        section:
+          type: string
+      required: [grade, section]
+
+    Subject:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+      required: [id, name]
+
+    CreateSubject:
+      type: object
+      properties:
+        name:
+          type: string
+      required: [name]
+
+    TimetableSlot:
+      type: object
+      properties:
+        id:
+          type: integer
+        dayOfWeek:
+          type: integer
+          description: "0=Sunday, 1=Monday, ..., 4=Thursday"
+        period:
+          type: integer
+          description: "1-8"
+        teacherId:
+          type: integer
+        classId:
+          type: integer
+        subjectId:
+          type: integer
+        teacherName:
+          type: string
+        className:
+          type: string
+        subjectName:
+          type: string
+      required: [id, dayOfWeek, period, teacherId, classId, subjectId, teacherName, className, subjectName]
+
+    CreateTimetableSlot:
+      type: object
+      properties:
+        dayOfWeek:
+          type: integer
+        period:
+          type: integer
+        teacherId:
+          type: integer
+        classId:
+          type: integer
+        subjectId:
+          type: integer
+      required: [dayOfWeek, period, teacherId, classId, subjectId]
+
+    SubstitutionAssignment:
+      type: object
+      properties:
+        id:
+          type: integer
+        date:
+          type: string
+        absentTeacherId:
+          type: integer
+        substituteTeacherId:
+          type: integer
+        timetableSlotId:
+          type: integer
+        absentTeacherName:
+          type: string
+        substituteTeacherName:
+          type: string
+        className:
+          type: string
+        subjectName:
+          type: string
+        period:
+          type: integer
+        dayOfWeek:
+          type: integer
+      required: [id, date, absentTeacherId, substituteTeacherId, timetableSlotId, absentTeacherName, substituteTeacherName, className, subjectName, period, dayOfWeek]
+
+    DailySubstitutionPlan:
+      type: object
+      properties:
+        date:
+          type: string
+        absentTeacherIds:
+          type: array
+          items:
+            type: integer
+        assignments:
+          type: array
+          items:
+            $ref: "#/components/schemas/SubstitutionAssignment"
+      required: [date, absentTeacherIds, assignments]
+
+    SaveSubstitutions:
+      type: object
+      properties:
+        date:
+          type: string
+        absentTeacherIds:
+          type: array
+          items:
+            type: integer
+        assignments:
+          type: array
+          items:
+            $ref: "#/components/schemas/AssignmentInput"
+      required: [date, absentTeacherIds, assignments]
+
+    AssignmentInput:
+      type: object
+      properties:
+        timetableSlotId:
+          type: integer
+        substituteTeacherId:
+          type: integer
+      required: [timetableSlotId, substituteTeacherId]
+
+    RecommendSubstitutionsRequest:
+      type: object
+      properties:
+        date:
+          type: string
+        absentTeacherIds:
+          type: array
+          items:
+            type: integer
+      required: [date, absentTeacherIds]
+
+    SubstitutionRecommendation:
+      type: object
+      properties:
+        timetableSlotId:
+          type: integer
+        period:
+          type: integer
+          description: "Period number"
+        className:
+          type: string
+        subjectName:
+          type: string
+        absentTeacherName:
+          type: string
+        recommendedTeachers:
+          type: array
+          items:
+            $ref: "#/components/schemas/RecommendedTeacher"
+      required: [timetableSlotId, period, className, subjectName, absentTeacherName, recommendedTeachers]
+
+    RecommendedTeacher:
+      type: object
+      properties:
+        teacherId:
+          type: integer
+        teacherName:
+          type: string
+        weeklySubstitutionCount:
+          type: integer
+        isFree:
+          type: boolean
+      required: [teacherId, teacherName, weeklySubstitutionCount, isFree]
+
+    WeeklySubstitutionCount:
+      type: object
+      properties:
+        teacherId:
+          type: integer
+        teacherName:
+          type: string
+        count:
+          type: integer
+      required: [teacherId, teacherName, count]
+
+    GenerateExamCommitteeRequest:
+      type: object
+      properties:
+        examName:
+          type: string
+        numberOfRooms:
+          type: integer
+        teacherIds:
+          type: array
+          items:
+            type: integer
+        proctorsPerRoom:
+          type: integer
+      required: [examName, numberOfRooms, teacherIds, proctorsPerRoom]
+
+    RoomAssignment:
+      type: object
+      properties:
+        roomNumber:
+          type: integer
+        teachers:
+          type: array
+          items:
+            $ref: "#/components/schemas/Teacher"
+      required: [roomNumber, teachers]
+
+    SavedExamCommittee:
+      type: object
+      properties:
+        id:
+          type: integer
+        examName:
+          type: string
+        createdAt:
+          type: string
+        assignments:
+          type: array
+          items:
+            $ref: "#/components/schemas/RoomAssignment"
+      required: [id, examName, createdAt, assignments]
+
+    SaveExamCommitteeRequest:
+      type: object
+      properties:
+        examName:
+          type: string
+        assignments:
+          type: array
+          items:
+            $ref: "#/components/schemas/RoomAssignment"
+      required: [examName, assignments]

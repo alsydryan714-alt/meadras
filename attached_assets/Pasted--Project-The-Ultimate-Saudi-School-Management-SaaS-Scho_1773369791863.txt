@@ -1,0 +1,27 @@
+> Project: The Ultimate Saudi School Management SaaS (School-Ease)
+> Vision: Build a world-class, multi-tenant web application for school administration. The system must deliver an unforgettable, seamless, and highly organized User Experience (UX), with zero lag and intuitive design.
+> Technical Stack & UI/UX Guidelines:
+>  * Frontend: Next.js (App Router), React.
+>  * Styling & UI: Tailwind CSS, Shadcn UI (for beautiful, accessible components), and Framer Motion (for smooth page transitions and micro-interactions).
+>  * Localization: Strict RTL (Right-to-Left) layout and Arabic language as the absolute default.
+>  * Database: Supabase or PostgreSQL (to handle relational data securely).
+> Core Architecture & Features:
+> 1. Multi-Tenant Onboarding & Authentication:
+>  * Sign Up / Login: Secure authentication system (Email/Password).
+>  * School Selector: During registration, users must select their school from a searchable, dynamic dropdown list. Developer Note: Build this dropdown to fetch from a Schools database table. Seed the table with 10 mock Saudi schools for testing, but include an Admin feature to upload a CSV file later to populate all schools in the Kingdom.
+> 2. Role-Based Access Control (RBAC):
+>  * System Admin: Can upload the master list of all Saudi schools.
+>  * School Admin (الوكيل/المدير): Can manage their specific school, invite teachers, build timetables, manage substitutions, and view reports.
+>  * Teacher (المعلم): Can only view their personal schedule, daily substitution assignments, and submit absence/leave requests.
+> 3. The Smart Engine (Core Modules for the School Admin):
+>  * Interactive Timetable Builder: A stunning, drag-and-drop grid to assign teachers to classes. Include a real-time conflict detection algorithm (prevents double-booking a teacher or a classroom).
+>  * Intelligent Substitution System (حصص الانتظار): The flagship feature. A daily dashboard where the Admin marks a teacher as "Absent". The system instantly suggests the best replacement teachers based on:
+>    * Availability during that specific period.
+>    * Fair distribution (suggests teachers with the lowest substitution count this week).
+>  * Exam Committee Generator: Input the number of rooms and available teachers, and the system fairly randomizes and assigns proctors to rooms.
+> 4. Unforgettable UX Features:
+>  * WhatsApp Integration Readiness: Add buttons next to generated schedules and substitutions to "Share via WhatsApp" (format the text cleanly for messaging).
+>  * One-Click Export: Beautiful PDF exports for all tables and reports, fully supporting Arabic fonts.
+>  * Dashboard Widgets: A clean home screen for the Admin showing "Today's Absences", "Total Substitution Hours", and "Quick Actions".
+> Execution Strategy:
+> Please build this step-by-step. Start with the Database Schema & Authentication (including the School Selector), then build the Dashboards based on Roles, and finally integrate the Smart Engine (Timetables & Substitutions). Make sure the UI feels premium, minimalist, and extremely fast.

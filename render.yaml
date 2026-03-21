@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: meadras-api
+    runtime: node
+    plan: starter
+    autoDeploy: true
+    buildCommand: npm install -g pnpm@9 && pnpm install --frozen-lockfile && BASE_PATH=/ pnpm --filter @workspace/school-manager run build && pnpm --filter @workspace/api-server run build
+    startCommand: node artifacts/api-server/dist/index.cjs
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: JWT_SECRET
+        sync: false
+      - key: DATABASE_URL
+        sync: false

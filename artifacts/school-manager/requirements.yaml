@@ -1,0 +1,14 @@
+packages:
+  "@dnd-kit/core": "Drag and drop functionality for the timetable builder"
+  "@dnd-kit/sortable": "Sortable grids for dnd-kit"
+  "@dnd-kit/utilities": "Utilities for dnd-kit"
+  "date-fns": "Date formatting and manipulation"
+  "framer-motion": "Smooth page transitions and component animations"
+  "react-hook-form": "Form state management"
+  "@hookform/resolvers": "Zod resolvers for forms"
+  "lucide-react": "Icons"
+images: []
+notes:
+  - "The entire application is RTL and in Arabic."
+  - "Uses browser native window.print() for PDF export to perfectly support Arabic fonts without complex jsPDF custom font configurations."
+  - "Tanstack query mutations invalidate using explicit API path query keys."
