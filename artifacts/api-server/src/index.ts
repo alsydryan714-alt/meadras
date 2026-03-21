@@ -5,9 +5,8 @@ function validateEnvironment() {
   const nodeEnv = process.env["NODE_ENV"];
   const required = ["DATABASE_URL", "JWT_SECRET", "NODE_ENV"];
 
-  if (nodeEnv === "production") {
-    required.push("FRONTEND_URL");
-  }
+  // FRONTEND_URL is optional when frontend is served from the same service (all-in-one on Railway)
+  // Only required when frontend is hosted separately (e.g., on Vercel)
 
   const missing = required.filter((key) => !process.env[key]);
   if (missing.length > 0) {
