@@ -36,7 +36,13 @@ app.use(
       }
 
       if (isProduction) {
-        callback(null, origin === frontendUrl);
+        // If FRONTEND_URL is set, only allow that origin (separate frontend deployment)
+        // If FRONTEND_URL is not set, allow all origins (all-in-one Railway deployment)
+        if (frontendUrl) {
+          callback(null, origin === frontendUrl);
+        } else {
+          callback(null, true);
+        }
         return;
       }
 
