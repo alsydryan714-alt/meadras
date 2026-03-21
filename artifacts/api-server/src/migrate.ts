@@ -27,9 +27,28 @@ async function runDrizzleMigrations() {
     
     // Get migrations folder path (works both in dev and production)
     const isDev = process.env.NODE_ENV !== "production";
-    const sqlDir = isDev
+    let sqlDir = isDev
       ? path.join(__dirname, "../../../lib/db/drizzle")
       : path.join(__dirname, "./migrations");
+    
+    // Fallback for some production environments where migrations might be in a different relative path
+    const { existsSync } = await import("fs");
+    if (!isDev && !existsSync(sqlDir)) {
+      const fallbackDir = path.join(process.cwd(), "artifacts/api-server/dist/migrations");
+      if (existsSync(fallbackDir)) {
+        sqlDir = fallbackDir;
+      } else {
+        const rootFallback = path.join(process.cwd(), "migrations");
+        if (existsSync(rootFallback)) {
+          sqlDir = rootFallback;
+        }
+      }
+    }
+    
+    console.log(`[migrate] Environment: ${process.env.NODE_ENV || 'development'}`);
+    console.log(`[migrate] __dirname: ${__dirname}`);
+    console.log(`[migrate] CWD: ${process.cwd()}`);
+    console.log(`[migrate] Final migrations path: ${sqlDir}`);
 
     // Run migrations in order
     const migrations = ["0000_modern_kulan_gath.sql", "0001_stage_schedules.sql"];
