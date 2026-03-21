@@ -56,8 +56,6 @@ export default defineConfig(async () => {
         output: {
           // Manual chunk splitting for better caching
           manualChunks: {
-            // React core — almost never changes
-            "vendor-react": ["react", "react-dom"],
             // Radix UI components — large but stable
             "vendor-radix": [
               "@radix-ui/react-dialog",
