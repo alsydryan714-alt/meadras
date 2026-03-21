@@ -50,34 +50,7 @@ export default defineConfig(async () => {
     build: {
       outDir: path.resolve(import.meta.dirname, "dist/public"),
       emptyOutDir: true,
-      // Raise warning threshold — project is large but acceptable
-      chunkSizeWarningLimit: 1000,
-      rollupOptions: {
-        output: {
-          // Manual chunk splitting for better caching
-          manualChunks: {
-            // Radix UI components — large but stable
-            "vendor-radix": [
-              "@radix-ui/react-dialog",
-              "@radix-ui/react-dropdown-menu",
-              "@radix-ui/react-select",
-              "@radix-ui/react-tabs",
-              "@radix-ui/react-popover",
-              "@radix-ui/react-tooltip",
-            ],
-            // Data & charting
-            "vendor-data": ["recharts", "@tanstack/react-query"],
-            // PDF & export utilities (lazy-loaded anyway)
-            "vendor-export": ["jspdf", "html2canvas", "exceljs"],
-            // DnD kit
-            "vendor-dnd": [
-              "@dnd-kit/core",
-              "@dnd-kit/sortable",
-              "@dnd-kit/utilities",
-            ],
-          },
-        },
-      },
+      chunkSizeWarningLimit: 2000,
       // Minify with esbuild (default, fast)
       minify: "esbuild",
       // Generate source maps only in dev
