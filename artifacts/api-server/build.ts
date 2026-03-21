@@ -70,6 +70,19 @@ async function buildAll() {
     logLevel: "info",
   });
 
+  // Copy database migrations to dist (needed for runtime migrations)
+  const migrationsSource = path.resolve(__dirname, "../../lib/db/drizzle");
+  const migrationsDest = path.resolve(distDir, "migrations");
+  
+  if (existsSync(migrationsSource)) {
+    console.log("Copying database migrations to dist/migrations...");
+    await mkdir(migrationsDest, { recursive: true });
+    await cp(migrationsSource, migrationsDest, { recursive: true });
+    console.log("Migrations copied.");
+  } else {
+    console.warn("⚠️  Migrations not found at:", migrationsSource);
+  }
+
   // Copy frontend static build into dist/public (for all-in-one Railway deploy)
   const frontendDist = path.resolve(__dirname, "../../artifacts/school-manager/dist/public");
   const publicDest = path.resolve(distDir, "public");

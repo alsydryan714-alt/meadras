@@ -1,4 +1,69 @@
 import { pool } from "@workspace/db";
+import { db } from "@workspace/db";
+import { readFile } from "fs/promises";
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+/**
+ * Run Drizzle migrations by executing SQL files directly
+ */
+async function runDrizzleMigrations() {
+  const client = await pool.connect();
+  try {
+    // Check if migrations have already been applied
+    const result = await client.query(
+      `SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'teachers')`
+    );
+    
+    if (result.rows[0].exists) {
+      console.log("[migrate] Base schema already exists, skipping Drizzle migrations");
+      return;
+    }
+
+    console.log("[migrate] Running Drizzle migrations...");
+    
+    // Get migrations folder path (works both in dev and production)
+    const isDev = process.env.NODE_ENV !== "production";
+    const sqlDir = isDev
+      ? path.join(__dirname, "../../../lib/db/drizzle")
+      : path.join(__dirname, "./migrations");
+
+    // Run migrations in order
+    const migrations = ["0000_modern_kulan_gath.sql", "0001_stage_schedules.sql"];
+    
+    for (const migrationFile of migrations) {
+      const filePath = path.join(sqlDir, migrationFile);
+      try {
+        const sql = await readFile(filePath, "utf-8");
+        // Split by --> statement-breakpoint and execute each statement
+        const statements = sql
+          .split("--> statement-breakpoint")
+          .map(s => s.trim())
+          .filter(s => s && !s.startsWith("--"));
+        
+        for (const statement of statements) {
+          if (statement) {
+            try {
+              await client.query(statement);
+            } catch (err) {
+              // Log but continue on individual statement errors (e.g., unique constraint violations)
+              console.warn(`[migrate] Warning in ${migrationFile}:`, (err as Error).message);
+            }
+          }
+        }
+        console.log(`[migrate] ✓ Applied ${migrationFile}`);
+      } catch (err) {
+        console.warn(`[migrate] Warning: Could not apply ${migrationFile}:`, (err as Error).message);
+        // Continue with next migration
+      }
+    }
+  } finally {
+    client.release();
+  }
+}
 
 /**
  * Runs startup migrations — safely adds new columns if they don't exist.
@@ -6,6 +71,9 @@ import { pool } from "@workspace/db";
  * database schema is always in sync with the application code.
  */
 export async function runStartupMigrations() {
+  // First, run Drizzle migrations to ensure base schema exists
+  await runDrizzleMigrations();
+
   const client = await pool.connect();
   try {
     await client.query("BEGIN");
