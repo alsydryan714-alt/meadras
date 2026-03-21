@@ -13,13 +13,13 @@ const __dirname = path.dirname(__filename);
 async function runDrizzleMigrations() {
   const client = await pool.connect();
   try {
-    // Check if migrations have already been applied
+    // Check if migrations have already been applied in the public schema
     const result = await client.query(
-      `SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'teachers')`
+      `SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'teachers')`
     );
     
     if (result.rows[0].exists) {
-      console.log("[migrate] Base schema already exists, skipping Drizzle migrations");
+      console.log("[migrate] Base schema already exists in public schema, skipping Drizzle migrations");
       return;
     }
 
@@ -44,20 +44,23 @@ async function runDrizzleMigrations() {
           .map(s => s.trim())
           .filter(s => s && !s.startsWith("--"));
         
-        for (const statement of statements) {
-          if (statement) {
-            try {
+        // Use a transaction for each migration file to ensure atomicity
+        await client.query("BEGIN");
+        try {
+          for (const statement of statements) {
+            if (statement) {
               await client.query(statement);
-            } catch (err) {
-              // Log but continue on individual statement errors (e.g., unique constraint violations)
-              console.warn(`[migrate] Warning in ${migrationFile}:`, (err as Error).message);
             }
           }
+          await client.query("COMMIT");
+          console.log(`[migrate] ✓ Applied ${migrationFile}`);
+        } catch (err) {
+          await client.query("ROLLBACK");
+          throw err; // Re-throw to be caught by the outer catch
         }
-        console.log(`[migrate] ✓ Applied ${migrationFile}`);
       } catch (err) {
-        console.warn(`[migrate] Warning: Could not apply ${migrationFile}:`, (err as Error).message);
-        // Continue with next migration
+        console.error(`[migrate] Error: Could not apply ${migrationFile}:`, (err as Error).message);
+        throw err; // Fail fast if a migration cannot be applied
       }
     }
   } finally {
@@ -71,11 +74,11 @@ async function runDrizzleMigrations() {
  * database schema is always in sync with the application code.
  */
 export async function runStartupMigrations() {
-  // First, run Drizzle migrations to ensure base schema exists
-  await runDrizzleMigrations();
-
   const client = await pool.connect();
   try {
+    // First, run Drizzle migrations to ensure base schema exists
+    await runDrizzleMigrations();
+
     await client.query("BEGIN");
 
     // teachers table — SRS additions
@@ -247,7 +250,12 @@ export async function runStartupMigrations() {
     await client.query("COMMIT");
     console.log("[migrate] Startup migrations completed successfully");
   } catch (err) {
-    await client.query("ROLLBACK");
+    // Only rollback if we actually started a transaction
+    try {
+      await client.query("ROLLBACK");
+    } catch (rollbackErr) {
+      // Ignore rollback errors if no transaction was active
+    }
     console.error("[migrate] Startup migration failed:", err);
     // Don't throw — allow server to start even if migration fails
     // to avoid breaking a working deployment
