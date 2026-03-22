@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useToast } from "@/hooks/use-toast";
 
-const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
+const BASE = (import.meta.env.NEXT_PUBLIC_API_URL || "").replace(/\/$/, "");
 
 interface Stats {
   totalSchools: number;

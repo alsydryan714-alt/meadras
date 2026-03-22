@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/auth";
 
-const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
+const BASE = (import.meta.env.NEXT_PUBLIC_API_URL || "").replace(/\/$/, "");
 const MOE_LOGO = `${import.meta.env.BASE_URL}moe-header.jpg`;
 
 interface SchoolInfo {

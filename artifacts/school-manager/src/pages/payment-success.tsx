@@ -4,7 +4,7 @@ import { useAuth } from "@/contexts/auth";
 import { Button } from "@/components/ui/button";
 import { CheckCircle2, XCircle, Loader2, ArrowRight } from "lucide-react";
 
-const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
+const BASE = (import.meta.env.NEXT_PUBLIC_API_URL || "").replace(/\/$/, "");
 
 export default function PaymentSuccessPage() {
   const [, navigate] = useLocation();

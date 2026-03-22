@@ -5,7 +5,7 @@ import { useAuth } from "@/contexts/auth";
 import { useToast } from "@/hooks/use-toast";
 import { Settings, School, User, Image, Clock } from "lucide-react";
 
-const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
+const BASE = (import.meta.env.NEXT_PUBLIC_API_URL || "").replace(/\/$/, "");
 
 const EDUCATION_REGIONS = [
   "الرياض", "مكة المكرمة", "المدينة المنورة", "القصيم", "الشرقية",

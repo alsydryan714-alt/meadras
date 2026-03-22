@@ -172,6 +172,8 @@ function DropZone({ onFile, accept = ".xlsx,.xls,.csv" }: { onFile: (file: File)
   );
 }
 
+const BASE = (import.meta.env.NEXT_PUBLIC_API_URL || "").replace(/\/$/, "");
+
 export default function NoorImportPage() {
   const { user } = useAuth();
   const isProfessional = (user?.subscription?.plan === "professional" || user?.subscription?.plan === "madrass") && user?.subscription?.isActive;
@@ -237,7 +239,7 @@ export default function NoorImportPage() {
     setImportResult(null);
     try {
       if (activeTab === "teachers" && teachersParsed) {
-        const res = await fetch("/api/teachers/bulk-import", {
+        const res = await fetch(`${BASE}/api/teachers/bulk-import`, {
           method: "POST",
           headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
           body: JSON.stringify({ teachers: teachersParsed.rows, mode: importMode }),
@@ -247,7 +249,7 @@ export default function NoorImportPage() {
         setImportResult(data);
         toast({ title: `✅ تم استيراد ${data.imported} معلم بنجاح` });
       } else if (activeTab === "classes" && classesParsed) {
-        const res = await fetch("/api/classes/bulk-import", {
+        const res = await fetch(`${BASE}/api/classes/bulk-import`, {
           method: "POST",
           headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
           body: JSON.stringify({ classes: classesParsed.rows, mode: importMode }),

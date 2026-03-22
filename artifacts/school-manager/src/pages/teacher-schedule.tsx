@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { SchoolLogo } from "@/components/school-logo";
 import { openWhatsApp } from "@/utils/pdf-export";
 
-const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
+const BASE = (import.meta.env.NEXT_PUBLIC_API_URL || "").replace(/\/$/, "");
 const DAYS = ["الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس"];
 const PERIODS = [1, 2, 3, 4, 5, 6, 7];
 

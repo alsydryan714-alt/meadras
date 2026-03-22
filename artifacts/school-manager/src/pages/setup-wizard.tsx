@@ -4,7 +4,7 @@ import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { CheckCircle2, School, BookOpen, User, ArrowLeft, ArrowRight } from "lucide-react";
 
-const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
+const BASE = (import.meta.env.NEXT_PUBLIC_API_URL || "").replace(/\/$/, "");
 
 const EDUCATION_REGIONS = [
   "الرياض", "مكة المكرمة", "المدينة المنورة", "القصيم", "الشرقية",

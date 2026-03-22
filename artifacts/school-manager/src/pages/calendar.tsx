@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Plus, ChevronRight, ChevronLeft, Trash2, CalendarDays, Palmtree, GraduationCap, Flag, Star } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
-const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
+const BASE = (import.meta.env.NEXT_PUBLIC_API_URL || "").replace(/\/$/, "");
 
 const DAYS_AR = ["أحد", "اثنين", "ثلاثاء", "أربعاء", "خميس", "جمعة", "سبت"];
 const MONTHS_AR = ["يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو", "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"];
@@ -91,7 +91,7 @@ export default function CalendarPage() {
     }
     const method = editEvent ? "PUT" : "POST";
     const url = editEvent ? `${BASE}/api/calendar/${editEvent.id}` : `${BASE}/api/calendar`;
-    const r = await fetch(url, {
+    const r = await fetch(`${BASE}${url}`, {
       method,
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${getToken()}` },
       body: JSON.stringify({ ...form, endDate: form.endDate || null }),

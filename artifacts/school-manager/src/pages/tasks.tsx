@@ -10,17 +10,17 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { useToast } from "@/hooks/use-toast";
 import { Plus, Trash2, CheckCircle2, Clock, AlertCircle, ClipboardList, Users } from "lucide-react";
 
-const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
+const BASE = (import.meta.env.NEXT_PUBLIC_API_URL || "").replace(/\/$/, "");
 
 async function fetchJSON(url: string) {
   const token = localStorage.getItem("auth_token");
-  const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+  const res = await fetch(`${BASE}${url}`, { headers: { Authorization: `Bearer ${token}` } });
   return res.json();
 }
 
 async function postJSON(url: string, body: any) {
   const token = localStorage.getItem("auth_token");
-  const res = await fetch(url, {
+  const res = await fetch(`${BASE}${url}`, {
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
     body: JSON.stringify(body),
@@ -30,7 +30,7 @@ async function postJSON(url: string, body: any) {
 
 async function putJSON(url: string, body: any) {
   const token = localStorage.getItem("auth_token");
-  const res = await fetch(url, {
+  const res = await fetch(`${BASE}${url}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
     body: JSON.stringify(body),
@@ -40,7 +40,7 @@ async function putJSON(url: string, body: any) {
 
 async function deleteReq(url: string) {
   const token = localStorage.getItem("auth_token");
-  await fetch(url, { method: "DELETE", headers: { Authorization: `Bearer ${token}` } });
+  await fetch(`${BASE}${url}`, { method: "DELETE", headers: { Authorization: `Bearer ${token}` } });
 }
 
 const PRIORITY_MAP: Record<string, { label: string; color: string }> = {

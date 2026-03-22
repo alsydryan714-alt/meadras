@@ -4,7 +4,7 @@ import { useAuth } from "@/contexts/auth";
 import { Button } from "@/components/ui/button";
 import { GraduationCap, Lock, AlertCircle, Loader2, CreditCard, ArrowRight, ShieldCheck, ExternalLink } from "lucide-react";
 
-const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
+const BASE = (import.meta.env.NEXT_PUBLIC_API_URL || "").replace(/\/$/, "");
 
 const PLAN_NAMES: Record<string, string> = {
   madrass: "مدراس",

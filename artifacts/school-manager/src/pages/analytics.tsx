@@ -10,13 +10,13 @@ import {
 } from "recharts";
 import { TrendingUp, Users, CalendarDays, ClipboardList, Award, BarChart3 } from "lucide-react";
 
-const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
+const BASE = (import.meta.env.NEXT_PUBLIC_API_URL || "").replace(/\/$/, "");
 const COLORS = ["#3b82f6", "#8b5cf6", "#10b981", "#f59e0b", "#ef4444", "#06b6d4", "#ec4899", "#84cc16"];
 const DAYS = ["الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس"];
 
 async function fetchJSON(url: string) {
   const token = localStorage.getItem("auth_token");
-  const res = await fetch(url, token ? { headers: { Authorization: `Bearer ${token}` } } : {});
+  const res = await fetch(`${BASE}${url}`, token ? { headers: { Authorization: `Bearer ${token}` } } : {});
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return res.json();
 }

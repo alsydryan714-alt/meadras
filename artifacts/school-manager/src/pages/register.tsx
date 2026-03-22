@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Eye, EyeOff, Loader2, AlertCircle, Search, Plus, Check } from "lucide-react";
 import { SchoolLogo } from "@/components/school-logo";
 
-const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
+const BASE = (import.meta.env.NEXT_PUBLIC_API_URL || "").replace(/\/$/, "");
 
 interface School { id: number; name: string; city: string; region: string; }
 
